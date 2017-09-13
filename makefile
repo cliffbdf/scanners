@@ -2,7 +2,10 @@
 
 PRODUCTNAME=Scanner Adapters
 ORG=Scaled Markets
-PACKAGENAME=utilities
+PACKAGENAME=scanners
+
+PROJECTROOT := $(shell pwd)
+UTILITIESDIR:=$(realpath $(PROJECTROOT)/../utilities)
 
 .DELETE_ON_ERROR:
 .ONESHELL:
@@ -28,7 +31,7 @@ $(build_dir):
 
 compile: $(build_dir) $(src_dir)/$(PACKAGENAME)/*.go
 	@echo "CPU_ARCH=${CPU_ARCH}"
-	GOPATH=$(CURDIR) go install $(PACKAGENAME)
+	GOPATH=$(CURDIR):$(UTILITIESDIR) go install $(PACKAGENAME)
 
 $(pkg_dir)/$(CPU_ARCH)/$(PACKAGENAME)/*.a : compile
 
