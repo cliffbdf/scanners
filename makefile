@@ -20,7 +20,7 @@ CPU_ARCH:=$(shell uname -s | tr '[:upper:]' '[:lower:]')_amd64
 .PHONY: all compile clean info
 .DEFAULT: all
 
-src_dir = $(CURDIR)/src
+src_dir = $(CURDIR)/go
 pkg_dir = $(CURDIR)/pkg
 build_dir = $(CURDIR)/bin
 
