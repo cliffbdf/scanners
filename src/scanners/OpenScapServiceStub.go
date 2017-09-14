@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Implementation of ScanProvider for the CoreOS Clair container scanner.
- * See https://github.com/coreos/clair
+ * Implementation of ScanProvider for the OpenScap container scanner.
+ * See:
+ *	https://github.com/OpenSCAP/openscap-daemon
+ *	https://github.com/mvazquezc/oscap-daemon-api
+ *	http://static.open-scap.org/openscap-1.2/oscap_user_manual.html#_scanning_of_docker_containers_and_images_using_oscap_docker
+ *	https://developers.redhat.com/blog/2016/05/02/introducing-atomic-scan-container-vulnerability-detection/
  *
  * Copyright Scaled Markets, Inc.
  */
 
-package providers
+package scanners
 
 import (
 	//"errors"
@@ -30,17 +34,17 @@ import (
 	"utilities/rest"
 )
 
-type ClairServiceStub struct {
+type OpenScapServiceStub struct {
 	UseSSL bool
 	Host string
 	Port int
-	LocalIPAddress string  // of this machine, for clair to call back
+	LocalIPAddress string  // of this machine, for OpenScap to call back
 	Params map[string]string
 }
 
-func (clairSvc *ClairServiceStub) GetName() string { return "clair" }
+func (openScapSvc *OpenScapServiceStub) GetName() string { return "openscap" }
 
-func CreateClairServiceStub(params map[string]interface{}) (ScanService, error) {
+func CreateOpenScapServiceStub(params map[string]interface{}) (ScanService, error) {
 	
 	var host string
 	var portStr string
@@ -64,7 +68,7 @@ func CreateClairServiceStub(params map[string]interface{}) (ScanService, error) 
 	port, err = strconv.Atoi(portStr)
 	if err != nil { return nil, err }
 	
-	return &ClairServiceStub{
+	return &OpenScapServiceStub{
 		UseSSL: false,
 		Host: host,
 		Port: port,
@@ -75,21 +79,21 @@ func CreateClairServiceStub(params map[string]interface{}) (ScanService, error) 
 	}, nil
 }
 
-func (clairSvc *ClairServiceStub) GetEndpoint() string {
-	return fmt.Sprintf("http://%s:%d", clairSvc.Host, clairSvc.Port)
+func (openScapSvc *OpenScapServiceStub) GetEndpoint() string {
+	return fmt.Sprintf("http://%s:%d", openScapSvc.Host, openScapSvc.Port)
 }
 
-func (clairSvc *ClairServiceStub) GetParameterDescriptions() map[string]string {
-	return clairSvc.Params
+func (openScapSvc *OpenScapServiceStub) GetParameterDescriptions() map[string]string {
+	return openScapSvc.Params
 }
 
-func (clairSvc *ClairServiceStub) GetParameterDescription(name string) (string, error) {
-	var desc string = clairSvc.Params[name]
+func (openScapSvc *OpenScapServiceStub) GetParameterDescription(name string) (string, error) {
+	var desc string = openScapSvc.Params[name]
 	if desc == "" { return "", utils.ConstructUserError("No parameter named '" + name + "'") }
 	return desc, nil
 }
 
-func (clairSvc *ClairServiceStub) CreateScanContext(params map[string]string) (ScanContext, error) {
+func (openScapSvc *OpenScapServiceStub) CreateScanContext(params map[string]string) (ScanContext, error) {
 	
 	var minPriority string
 	
@@ -99,53 +103,53 @@ func (clairSvc *ClairServiceStub) CreateScanContext(params map[string]string) (S
 	}
 	
 	var scheme string
-	if clairSvc.UseSSL { scheme = "https" } else { scheme = "http" }
+	if openScapSvc.UseSSL { scheme = "https" } else { scheme = "http" }
 	
-	return &ClairRestContextStub{
+	return &OpenScapRestContextStub{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			clairSvc.Host, clairSvc.Port, "", "", setClairSessionStubId),
+			openScapSvc.Host, openScapSvc.Port, "", "", setOpenScapSessionStubId),
 		MinimumVulnerabilityPriority: minPriority,
-		ClairServiceStub: clairSvc,
+		OpenScapServiceStub: openScapSvc,
 		sessionId: "",
 	}, nil
 }
 
-func (clairSvc *ClairServiceStub) AsScanProviderDesc() *ScanProviderDesc {
+func (openScapSvc *OpenScapServiceStub) AsScanProviderDesc() *ScanProviderDesc {
 	var params = []rest.ParameterInfo{}
-	for name, desc := range clairSvc.Params {
+	for name, desc := range openScapSvc.Params {
 		params = append(params, *rest.NewParameterInfo(name, desc))
 	}
-	return NewScanProviderDesc(clairSvc.GetName(), params)
+	return NewScanProviderDesc(openScapSvc.GetName(), params)
 }
 
 /*******************************************************************************
- * For accessing the Clair scanning service.
+ * For accessing the OpenScap scanning service.
  */
-type ClairRestContextStub struct {
+type OpenScapRestContextStub struct {
 	rest.RestContext
 	MinimumVulnerabilityPriority string
-	ClairServiceStub *ClairServiceStub
+	OpenScapServiceStub *OpenScapServiceStub
 	sessionId string
 }
 
-func (clairContext *ClairRestContextStub) getEndpoint() string {
-	return clairContext.ClairServiceStub.GetEndpoint()
+func (openScapContext *OpenScapRestContextStub) getEndpoint() string {
+	return openScapContext.OpenScapServiceStub.GetEndpoint()
 }
 
-func (clairContext *ClairRestContextStub) PingService() *rest.RestResponseType {
+func (openScapContext *OpenScapRestContextStub) PingService() *rest.RestResponseType {
 	var apiVersion string
 	var engineVersion string
 	var err error
-	apiVersion, engineVersion, err = clairContext.GetVersions()
+	apiVersion, engineVersion, err = openScapContext.GetVersions()
 	if err != nil { return rest.NewRestResponseType(500, err.Error()) }
 	return rest.NewRestResponseType(200, fmt.Sprintf(
 		"Service is up: api version %s, engine version %s", apiVersion, engineVersion))
 }
 
 /*******************************************************************************
- * See https://github.com/coreos/clair/blob/master/contrib/analyze-local-images/main.go
+ * 
  */
-func (clairContext *ClairRestContextStub) ScanImage(imageName string) (*ScanResult, error) {
+func (openScapContext *OpenScapRestContextStub) ScanImage(imageName string) (*ScanResult, error) {
 	
 	// Save image
 	fmt.Printf("Saving %s\n", imageName)
@@ -188,22 +192,22 @@ func (clairContext *ClairRestContextStub) ScanImage(imageName string) (*ScanResu
 }
 
 
-/**************************** Clair Service Methods ***************************
+/**************************** OpenScap Service Methods ***************************
  ******************************************************************************/
 
 
 /*******************************************************************************
  * 
  */
-func (clairContext *ClairRestContextStub) GetVersions() (apiVersion string, engineVersion string, err error) {
+func (openScapContext *OpenScapRestContextStub) GetVersions() (apiVersion string, engineVersion string, err error) {
 
 	var resp *http.Response
-	resp, err = clairContext.SendSessionGet(clairContext.sessionId, "v1/versions", nil, nil)
+	resp, err = openScapContext.SendSessionGet(openScapContext.sessionId, "v1/versions", nil, nil)
 	
 	if err != nil { return "", "", err }
 	defer resp.Body.Close()
 	
-	clairContext.Verify200Response(resp)
+	openScapContext.Verify200Response(resp)
 
 	var responseMap map[string]interface{}
 	responseMap, err = rest.ParseResponseBodyToMap(resp.Body)
@@ -216,7 +220,7 @@ func (clairContext *ClairRestContextStub) GetVersions() (apiVersion string, engi
 	return apiVersion, engineVersion, nil
 }
 
-func (clairContext *ClairRestContextStub) GetHealth() string {
+func (openScapContext *OpenScapRestContextStub) GetHealth() string {
 	//resp = get("v1/health")
 	return ""
 }
@@ -230,7 +234,7 @@ func (clairContext *ClairRestContextStub) GetHealth() string {
 /*******************************************************************************
  * Set the session Id as a cookie.
  */
-func setClairSessionStubId(req *http.Request, sessionId string) {
+func setOpenScapSessionStubId(req *http.Request, sessionId string) {
 	
 	// Set cookie containing the session Id.
 	var cookie = &http.Cookie{

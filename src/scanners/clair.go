@@ -36,7 +36,7 @@
  * Copyright Scaled Markets, Inc.
  */
 
-package providers
+package scanners
 
 import (
 	//"errors"

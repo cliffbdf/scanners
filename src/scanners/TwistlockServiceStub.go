@@ -8,7 +8,7 @@
  * Copyright Scaled Markets, Inc.
  */
 
-package providers
+package scanners
 
 import (
 	"net/http"
