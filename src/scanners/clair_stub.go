@@ -103,7 +103,7 @@ func (clairSvc *ClairServiceStub) CreateScanContext(params map[string]string) (S
 	
 	return &ClairRestContextStub{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			clairSvc.Host, clairSvc.Port, "", "", setClairSessionStubId),
+			clairSvc.Host, clairSvc.Port, "", "", nil, setClairSessionStubId),
 		MinimumVulnerabilityPriority: minPriority,
 		ClairServiceStub: clairSvc,
 		sessionId: "",

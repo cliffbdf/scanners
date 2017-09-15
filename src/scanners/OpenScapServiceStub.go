@@ -107,7 +107,7 @@ func (openScapSvc *OpenScapServiceStub) CreateScanContext(params map[string]stri
 	
 	return &OpenScapRestContextStub{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			openScapSvc.Host, openScapSvc.Port, "", "", setOpenScapSessionStubId),
+			openScapSvc.Host, openScapSvc.Port, "", "", nil, setOpenScapSessionStubId),
 		MinimumVulnerabilityPriority: minPriority,
 		OpenScapServiceStub: openScapSvc,
 		sessionId: "",

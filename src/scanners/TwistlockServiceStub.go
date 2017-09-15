@@ -93,7 +93,7 @@ func (twistlockSvc *TwistlockServiceStub) CreateScanContext(params map[string]st
 	
 	var context *TwistlockRestContextStub = &TwistlockRestContextStub{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			twistlockSvc.Host, twistlockSvc.Port, "", "", setTwistlockStubSessionId),
+			twistlockSvc.Host, twistlockSvc.Port, "", "", nil, setTwistlockStubSessionId),
 		//MinimumVulnerabilityPriority: minPriority,
 		TwistlockServiceStub: twistlockSvc,
 		sessionId: "",

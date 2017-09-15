@@ -21,6 +21,7 @@ package scanners
 import (
 	"errors"
 	"net/http"
+	"crypto/tls"
 	"fmt"
 
 	"encoding/json"
@@ -136,6 +137,9 @@ type TwistlockRestContext struct {
 
 var _ ScanContext = &TwistlockRestContext{}
 
+/*******************************************************************************
+ *
+ */
 func (twistlockSvc *TwistlockService) CreateScanContext(params map[string]string) (ScanContext, error) {
 	
 	//var minPriority string
@@ -143,9 +147,25 @@ func (twistlockSvc *TwistlockService) CreateScanContext(params map[string]string
 	var scheme string
 	if twistlockSvc.UseSSL { scheme = "https" } else { scheme = "http" }
 	
+	/*
+	 * At present, we do not validate the cert that is returned by
+	 * Twistlock. This is ok because Twistlock is our private instance in our network.
+	 * To do: Add optional server cert validation:
+	 * 	x509.NewCertPool to create a new cert pool
+	 * 	AppendCertsFromPEM to add your root certs to the pool
+	 * 	Create a tls.Config and set RootCAs to your pool
+	 * 	Call Config''s BuildNameToCertificate
+	 * 	Use the Config in the http.Transport
+	 */
+	var transport *http.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	
 	var context *TwistlockRestContext = &TwistlockRestContext{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			twistlockSvc.Host, twistlockSvc.Port, "", "", setTwistlockSessionId),
+			twistlockSvc.Host, twistlockSvc.Port, "", "", transport, setTwistlockSessionId),
 		//MinimumVulnerabilityPriority: minPriority,
 		TwistlockService: twistlockSvc,
 		sessionId: "",
@@ -162,6 +182,7 @@ func (twistlockSvc *TwistlockService) CreateScanContext(params map[string]string
 /*******************************************************************************
  * Authenticate to Twistlock server, to obtain session token and set it in the
  * REST context.
+ *
  * See https://twistlock.desk.com/customer/en/portal/articles/2831956-twistlock-api-2-1#authenticate
  */
 func (twistlockContext *TwistlockRestContext) authenticate(userId string, password string) error {
