@@ -189,9 +189,12 @@ func (twistlockContext *TwistlockRestContext) authenticate(userId string, passwo
 	
 	var response *http.Response
 	var err error
-	response, err = twistlockContext.SendSessionReq(
-		twistlockContext.sessionId, "POST", twistlockContext.getEndpoint() + "/authenticate",
-		[]string{ "username", "password" }, []string{ userId, password },
+	var jsonPayload string = fmt.Sprintf(
+		"{\"username\": \"%s\", \"password\": \"%s\"}", userId, password)
+	var stringReader io.Reader = strings.NewReader(jsonPayload)
+	response, err = twistlockContext.SendSessionStreamPost(
+		twistlockContext.sessionId, "POST", "authenticate",
+		stringReader,
 		[]string{ "Content-Type" }, []string{ "application/json" })
 	if err != nil {
 		return err
@@ -339,7 +342,7 @@ func (twistlockContext *TwistlockRestContext) PingConsole() error {
 	var response *http.Response
 	var err error
 	response, err = twistlockContext.SendSessionGet(
-		twistlockContext.sessionId, twistlockContext.getEndpoint() + "/_ping", nil, nil)
+		twistlockContext.sessionId, "_ping", nil, nil)
 	
 	if response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("Returned %d", response.StatusCode))
@@ -374,7 +377,7 @@ func (twistlockContext *TwistlockRestContext) initiateScan(registryName, repoNam
 	var stringReader io.Reader = strings.NewReader(jsonPayload)
 	var err error
 	response, err = twistlockContext.SendSessionStreamPost(
-		twistlockContext.sessionId, "POST", twistlockContext.getEndpoint() + "/registry/scan",
+		twistlockContext.sessionId, "POST", "registry/scan",
 		stringReader, []string{ "Content-Type" }, []string{ "application/json" })
 	if err != nil {
 		return err
@@ -413,7 +416,7 @@ func (twistlockContext *TwistlockRestContext) getVulnerabilities(
 	var response *http.Response
 	var err error
 	response, err = twistlockContext.SendSessionReq(
-		twistlockContext.sessionId, "GET", twistlockContext.getEndpoint() + "/registry",
+		twistlockContext.sessionId, "GET", "registry",
 		[]string{"repository"}, []string{imageName}, nil, nil)
 	if err != nil {
 		return nil, NullTime, err
