@@ -190,10 +190,31 @@ func (twistlockContext *TwistlockRestContext) authenticate(userId string, passwo
 	var response *http.Response
 	var err error
 	var jsonPayload string = fmt.Sprintf(
-		"{\"username\": \"%s\", \"password\": \"%s\"}", userId, password)
+		"{\"username\":\"%s\", \"password\":\"%s\"}", userId, password)
+	fmt.Println(jsonPayload)  // debug
 	var stringReader io.Reader = strings.NewReader(jsonPayload)
+	
+	// debug
+	var stringReader2 io.Reader = strings.NewReader(jsonPayload)
+	for ;; {
+		var n int
+		var err error
+		var p []byte = make([]byte, 1)
+		n, err = stringReader2.Read(p)
+		if err != nil {
+			fmt.Println(err.Error())
+			break
+		}
+		if n == 0 { break }
+		fmt.Print(p)
+	}
+	fmt.Println()
+	// end debug
+	
+	
+	
 	response, err = twistlockContext.SendSessionStreamPost(
-		twistlockContext.sessionId, "POST", "authenticate",
+		twistlockContext.sessionId, "POST", twistlockAPIPrefix + "/authenticate",
 		stringReader,
 		[]string{ "Content-Type" }, []string{ "application/json" })
 	if err != nil {
@@ -334,6 +355,10 @@ func (twistlockContext *TwistlockRestContext) ScanImage(imageName string) (*Scan
  ******************************************************************************/
 
 
+const (
+	twistlockAPIPrefix               = "api/v1"
+)
+
 /*******************************************************************************
  * 
  */
@@ -342,7 +367,7 @@ func (twistlockContext *TwistlockRestContext) PingConsole() error {
 	var response *http.Response
 	var err error
 	response, err = twistlockContext.SendSessionGet(
-		twistlockContext.sessionId, "_ping", nil, nil)
+		twistlockContext.sessionId, twistlockAPIPrefix + "/_ping", nil, nil)
 	
 	if response.StatusCode >= 300 {
 		return errors.New(fmt.Sprintf("Returned %d", response.StatusCode))
@@ -377,7 +402,7 @@ func (twistlockContext *TwistlockRestContext) initiateScan(registryName, repoNam
 	var stringReader io.Reader = strings.NewReader(jsonPayload)
 	var err error
 	response, err = twistlockContext.SendSessionStreamPost(
-		twistlockContext.sessionId, "POST", "registry/scan",
+		twistlockContext.sessionId, "POST", twistlockAPIPrefix + "/registry/scan",
 		stringReader, []string{ "Content-Type" }, []string{ "application/json" })
 	if err != nil {
 		return err
@@ -416,7 +441,7 @@ func (twistlockContext *TwistlockRestContext) getVulnerabilities(
 	var response *http.Response
 	var err error
 	response, err = twistlockContext.SendSessionReq(
-		twistlockContext.sessionId, "GET", "registry",
+		twistlockContext.sessionId, "GET", twistlockAPIPrefix + "/registry",
 		[]string{"repository"}, []string{imageName}, nil, nil)
 	if err != nil {
 		return nil, NullTime, err

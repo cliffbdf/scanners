@@ -385,8 +385,8 @@ func (clairContext *ClairRestContext) GetLayersAffectedByVulnerability() {
 
 
 const (
-	postLayerURI               = "/v1/layers"
-	getLayerVulnerabilitiesURI = "/v1/layers/%s?vulnerabilities"
+	clairPostLayerURI               = "/v1/layers"
+	clairGetLayerVulnerabilitiesURI = "/v1/layers/%s?vulnerabilities"
 )
 
 type APIVulnerabilitiesResponse struct {
@@ -527,7 +527,7 @@ func analyzeLayer(endpoint, path, layerName, parentLayerName string) error {
 		"\"Format\": \"%s\"}}",
 		layerName, path, parentLayerName, "Docker")
 	
-	var url = endpoint + postLayerURI
+	var url = endpoint + clairPostLayerURI
 	fmt.Println("Sending request to clair:")
 	fmt.Println("POST " + url + " " + string(jsonPayload))
 
@@ -557,7 +557,7 @@ func analyzeLayer(endpoint, path, layerName, parentLayerName string) error {
  */
 func getVulnerabilities(endpoint, layerID, minimumPriority string) ([]Vulnerability, error) {
 	
-	var url = endpoint + fmt.Sprintf(getLayerVulnerabilitiesURI, layerID)
+	var url = endpoint + fmt.Sprintf(clairGetLayerVulnerabilitiesURI, layerID)
 	fmt.Println(url)
 	
 	response, err := http.Get(url)
