@@ -3,7 +3,7 @@ package scanners
 import (
 	
 	"fmt"
-	"utilities/rest"
+	"rest"
 )
 
 type ScanService interface {

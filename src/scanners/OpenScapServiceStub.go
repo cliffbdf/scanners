@@ -30,8 +30,8 @@ import (
 	"strconv"
 
 	// SafeHarbor packages:
-	"utilities/utils"
-	"utilities/rest"
+	"utilities"
+	"rest"
 )
 
 type OpenScapServiceStub struct {
@@ -52,16 +52,16 @@ func CreateOpenScapServiceStub(params map[string]interface{}) (ScanService, erro
 	var isType bool
 	
 	host, isType = params["Host"].(string)
-	if host == "" { return nil, utils.ConstructUserError("Parameter 'Host' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Host' is not a string") }
+	if host == "" { return nil, utilities.ConstructUserError("Parameter 'Host' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Host' is not a string") }
 
 	portStr, isType = params["Port"].(string)
-	if portStr == "" { return nil, utils.ConstructUserError("Parameter 'Port' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Port' is not a string") }
+	if portStr == "" { return nil, utilities.ConstructUserError("Parameter 'Port' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Port' is not a string") }
 
 	localIPAddress, isType = params["LocalIPAddress"].(string)
-	if localIPAddress == "" { return nil, utils.ConstructUserError("Parameter 'localIPAddress' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'localIPAddress' is not a string") }
+	if localIPAddress == "" { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' is not a string") }
 	
 	var port int
 	var err error
@@ -89,7 +89,7 @@ func (openScapSvc *OpenScapServiceStub) GetParameterDescriptions() map[string]st
 
 func (openScapSvc *OpenScapServiceStub) GetParameterDescription(name string) (string, error) {
 	var desc string = openScapSvc.Params[name]
-	if desc == "" { return "", utils.ConstructUserError("No parameter named '" + name + "'") }
+	if desc == "" { return "", utilities.ConstructUserError("No parameter named '" + name + "'") }
 	return desc, nil
 }
 
@@ -214,9 +214,9 @@ func (openScapContext *OpenScapRestContextStub) GetVersions() (apiVersion string
 	if err != nil { return "", "", err }
 	var isType bool
 	apiVersion, isType = responseMap["APIVersion"].(string)
-	if ! isType { return "", "", utils.ConstructServerError("Value returned for APIVersion is not a string") }
+	if ! isType { return "", "", utilities.ConstructServerError("Value returned for APIVersion is not a string") }
 	engineVersion, isType = responseMap["EngineVersion"].(string)
-	if ! isType { return "", "", utils.ConstructServerError("Value returned for EngineVersion is not a string") }
+	if ! isType { return "", "", utilities.ConstructServerError("Value returned for EngineVersion is not a string") }
 	return apiVersion, engineVersion, nil
 }
 

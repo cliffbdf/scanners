@@ -16,8 +16,8 @@ import (
 	"strconv"
 
 	// SafeHarbor packages:
-	"utilities/utils"
-	"utilities/rest"
+	"utilities"
+	"rest"
 )
 
 type TwistlockServiceStub struct {
@@ -38,16 +38,16 @@ func CreateTwistlockServiceStub(params map[string]interface{}) (ScanService, err
 	var isType bool
 	
 	host, isType = params["Host"].(string)
-	if host == "" { return nil, utils.ConstructUserError("Parameter 'Host' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Host' is not a string") }
+	if host == "" { return nil, utilities.ConstructUserError("Parameter 'Host' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Host' is not a string") }
 
 	portStr, isType = params["Port"].(string)
-	if portStr == "" { return nil, utils.ConstructUserError("Parameter 'Port' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Port' is not a string") }
+	if portStr == "" { return nil, utilities.ConstructUserError("Parameter 'Port' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Port' is not a string") }
 
 	localIPAddress, isType = params["LocalIPAddress"].(string)
-	if localIPAddress == "" { return nil, utils.ConstructUserError("Parameter 'localIPAddress' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'localIPAddress' is not a string") }
+	if localIPAddress == "" { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' is not a string") }
 	
 	var port int
 	var err error
@@ -82,7 +82,7 @@ func (twistlockSvc *TwistlockServiceStub) GetParameterDescriptions() map[string]
 
 func (twistlockSvc *TwistlockServiceStub) GetParameterDescription(name string) (string, error) {
 	var desc string = twistlockSvc.Params[name]
-	if desc == "" { return "", utils.ConstructUserError("No parameter named '" + name + "'") }
+	if desc == "" { return "", utilities.ConstructUserError("No parameter named '" + name + "'") }
 	return desc, nil
 }
 

@@ -26,8 +26,8 @@ import (
 	"strconv"
 
 	// SafeHarbor packages:
-	"utilities/utils"
-	"utilities/rest"
+	"utilities"
+	"rest"
 )
 
 type ClairServiceStub struct {
@@ -48,16 +48,16 @@ func CreateClairServiceStub(params map[string]interface{}) (ScanService, error) 
 	var isType bool
 	
 	host, isType = params["Host"].(string)
-	if host == "" { return nil, utils.ConstructUserError("Parameter 'Host' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Host' is not a string") }
+	if host == "" { return nil, utilities.ConstructUserError("Parameter 'Host' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Host' is not a string") }
 
 	portStr, isType = params["Port"].(string)
-	if portStr == "" { return nil, utils.ConstructUserError("Parameter 'Port' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Port' is not a string") }
+	if portStr == "" { return nil, utilities.ConstructUserError("Parameter 'Port' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Port' is not a string") }
 
 	localIPAddress, isType = params["LocalIPAddress"].(string)
-	if localIPAddress == "" { return nil, utils.ConstructUserError("Parameter 'localIPAddress' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'localIPAddress' is not a string") }
+	if localIPAddress == "" { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' is not a string") }
 	
 	var port int
 	var err error
@@ -85,7 +85,7 @@ func (clairSvc *ClairServiceStub) GetParameterDescriptions() map[string]string {
 
 func (clairSvc *ClairServiceStub) GetParameterDescription(name string) (string, error) {
 	var desc string = clairSvc.Params[name]
-	if desc == "" { return "", utils.ConstructUserError("No parameter named '" + name + "'") }
+	if desc == "" { return "", utilities.ConstructUserError("No parameter named '" + name + "'") }
 	return desc, nil
 }
 
@@ -210,9 +210,9 @@ func (clairContext *ClairRestContextStub) GetVersions() (apiVersion string, engi
 	if err != nil { return "", "", err }
 	var isType bool
 	apiVersion, isType = responseMap["APIVersion"].(string)
-	if ! isType { return "", "", utils.ConstructServerError("Value returned for APIVersion is not a string") }
+	if ! isType { return "", "", utilities.ConstructServerError("Value returned for APIVersion is not a string") }
 	engineVersion, isType = responseMap["EngineVersion"].(string)
-	if ! isType { return "", "", utils.ConstructServerError("Value returned for EngineVersion is not a string") }
+	if ! isType { return "", "", utilities.ConstructServerError("Value returned for EngineVersion is not a string") }
 	return apiVersion, engineVersion, nil
 }
 

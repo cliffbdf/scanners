@@ -6,6 +6,7 @@ PACKAGENAME=scanners
 
 PROJECTROOT := $(shell pwd)
 UTILITIESDIR:=$(realpath $(PROJECTROOT)/../utilities)
+RESTDIR := $(realpath $(PROJECTROOT)/../rest)
 
 .DELETE_ON_ERROR:
 .ONESHELL:
@@ -31,7 +32,7 @@ $(build_dir):
 
 compile: $(build_dir) $(src_dir)/$(PACKAGENAME)/*.go
 	@echo "CPU_ARCH=${CPU_ARCH}"
-	GOPATH=$(CURDIR):$(UTILITIESDIR) go install $(PACKAGENAME)
+	GOPATH=$(CURDIR):$(UTILITIESDIR):$(RESTDIR) go install $(PACKAGENAME)
 
 $(pkg_dir)/$(CPU_ARCH)/$(PACKAGENAME)/*.a : compile
 

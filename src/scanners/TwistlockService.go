@@ -32,8 +32,8 @@ import (
 	"strconv"
 
 	// SafeHarbor packages:
-	"utilities/utils"
-	"utilities/rest"
+	"utilities"
+	"rest"
 )
 
 var ScanResultWaitIntervalMs = 100
@@ -62,24 +62,24 @@ func CreateTwistlockService(params map[string]interface{}) (ScanService, error) 
 	var isType bool
 	
 	host, isType = params["Host"].(string)
-	if host == "" { return nil, utils.ConstructUserError("Parameter 'Host' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Host' is not a string") }
+	if host == "" { return nil, utilities.ConstructUserError("Parameter 'Host' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Host' is not a string") }
 
 	portStr, isType = params["Port"].(string)
-	if portStr == "" { return nil, utils.ConstructUserError("Parameter 'Port' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Port' is not a string") }
+	if portStr == "" { return nil, utilities.ConstructUserError("Parameter 'Port' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Port' is not a string") }
 
 	userId, isType = params["UserId"].(string)
-	if userId == "" { return nil, utils.ConstructUserError("Parameter 'UserId' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'UserId' is not a string") }
+	if userId == "" { return nil, utilities.ConstructUserError("Parameter 'UserId' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'UserId' is not a string") }
 
 	password, isType = params["Password"].(string)
-	if password == "" { return nil, utils.ConstructUserError("Parameter 'Password' not specified") }
-	if ! isType { return nil, utils.ConstructUserError("Parameter 'Password' is not a string") }
+	if password == "" { return nil, utilities.ConstructUserError("Parameter 'Password' not specified") }
+	if ! isType { return nil, utilities.ConstructUserError("Parameter 'Password' is not a string") }
 	
 	//localIPAddress, isType = params["LocalIPAddress"].(string)
-	//if localIPAddress == "" { return nil, utils.ConstructUserError("Parameter 'localIPAddress' not specified") }
-	//if ! isType { return nil, utils.ConstructUserError("Parameter 'localIPAddress' is not a string") }
+	//if localIPAddress == "" { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' not specified") }
+	//if ! isType { return nil, utilities.ConstructUserError("Parameter 'localIPAddress' is not a string") }
 	
 	var port int
 	var err error
@@ -113,7 +113,7 @@ func (twistlockSvc *TwistlockService) GetParameterDescriptions() map[string]stri
 
 func (twistlockSvc *TwistlockService) GetParameterDescription(name string) (string, error) {
 	var desc string = twistlockSvc.Params[name]
-	if desc == "" { return "", utils.ConstructUserError("No parameter named '" + name + "'") }
+	if desc == "" { return "", utilities.ConstructUserError("No parameter named '" + name + "'") }
 	return desc, nil
 }
 
@@ -298,7 +298,7 @@ func (twistlockContext *TwistlockRestContext) ScanImage(imageName string) (*Scan
 	for ;; { // until we obtain an up to date scan result, or reach max # of tries
 		numberOfTries++
 		if numberOfTries > MaxNumberOfTries {
-			return nil, utils.ConstructUserError("Timed out waiting for scan result")
+			return nil, utilities.ConstructUserError("Timed out waiting for scan result")
 		}
 		var scanCompletionTime time.Time
 		vulnerabilities, scanCompletionTime, err = twistlockContext.getVulnerabilities(imageName);
@@ -321,25 +321,25 @@ func (twistlockContext *TwistlockRestContext) ScanImage(imageName string) (*Scan
 		var isType bool
 		vuln, isType = vuln_.(map[string]interface{})
 		if ! isType {
-			return nil, utils.ConstructUserError("Unexpected json object type for a cveVulnerability")
+			return nil, utilities.ConstructUserError("Unexpected json object type for a cveVulnerability")
 		}
 		
 		var id, link, severity, description string
 		id, isType = vuln["id"].(string)
 		if ! isType {
-			return nil, utils.ConstructUserError("Unexpected json object type for vulnerability id")
+			return nil, utilities.ConstructUserError("Unexpected json object type for vulnerability id")
 		}
 		link, isType = vuln["link"].(string)
 		if ! isType {
-			return nil, utils.ConstructUserError("Unexpected json object type for vulnerability link")
+			return nil, utilities.ConstructUserError("Unexpected json object type for vulnerability link")
 		}
 		severity, isType = vuln["severity"].(string)
 		if ! isType {
-			return nil, utils.ConstructUserError("Unexpected json object type for vulnerability severity")
+			return nil, utilities.ConstructUserError("Unexpected json object type for vulnerability severity")
 		}
 		description, isType = vuln["description"].(string)
 		if ! isType {
-			return nil, utils.ConstructUserError("Unexpected json object type for vulnerability description")
+			return nil, utilities.ConstructUserError("Unexpected json object type for vulnerability description")
 		}
 	
 		vulnDescs[i] = NewVulnerabilityDesc(id, link, severity, description)
@@ -504,7 +504,7 @@ func (twistlockContext *TwistlockRestContext) getVulnerabilities(
 	var info map[string]interface{}
 	info, isType = info_.(map[string]interface{})
 	if ! isType {
-		return nil, NullTime, utils.ConstructUserError("Unexpected json object type for info field")
+		return nil, NullTime, utilities.ConstructUserError("Unexpected json object type for info field")
 	}
 	
 	var vulnerabilities []interface{}
@@ -515,7 +515,7 @@ func (twistlockContext *TwistlockRestContext) getVulnerabilities(
 	} else {
 		vulnerabilities, isType = vulnerabilities_.([]interface{})
 		if ! isType {
-			return nil, NullTime, utils.ConstructUserError("Unexpected json object type for cveVulnerabilities field")
+			return nil, NullTime, utilities.ConstructUserError("Unexpected json object type for cveVulnerabilities field")
 		}
 	}
 
