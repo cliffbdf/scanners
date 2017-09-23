@@ -196,6 +196,7 @@ func (twistlockContext *TwistlockRestContext) authenticate(userId string, passwo
 	
 	// debug
 	var stringReader2 io.Reader = strings.NewReader(jsonPayload)
+	var bytes = make([]byte, 1)
 	for ;; {
 		var n int
 		var err error
@@ -206,18 +207,26 @@ func (twistlockContext *TwistlockRestContext) authenticate(userId string, passwo
 			break
 		}
 		if n == 0 { break }
+		bytes = append(bytes, p[0])
 		fmt.Print(p)
 	}
-	fmt.Println()
+	var whatWeRead = string(bytes)
+	fmt.Println("Json payload read back:")
+	fmt.Println(whatWeRead)
+	fmt.Println("end payload")
 	// end debug
 	
 	
-	
+	var url string = twistlockAPIPrefix + "/authenticate"
 	response, err = twistlockContext.SendSessionStreamPost(
-		twistlockContext.sessionId, "POST", twistlockAPIPrefix + "/authenticate",
-		stringReader,
+		twistlockContext.sessionId, "POST", url, stringReader,
 		[]string{ "Content-Type" }, []string{ "application/json" })
 	if err != nil {
+		
+		fmt.Println("Authentication failed")
+		fmt.Println("url=" + url)
+		
+		
 		return err
 	}
 	
