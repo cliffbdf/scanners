@@ -165,7 +165,7 @@ func (twistlockSvc *TwistlockService) CreateScanContext(params map[string]string
 	
 	var context *TwistlockRestContext = &TwistlockRestContext{
 		RestContext: *rest.CreateTCPRestContext(scheme,
-			twistlockSvc.Host, twistlockSvc.Port, "", "", transport, setTwistlockSessionId),
+			twistlockSvc.Host, twistlockSvc.Port, twistlockSvc.UserId, twistlockSvc.Password, transport, setTwistlockSessionId),
 		//MinimumVulnerabilityPriority: minPriority,
 		TwistlockService: twistlockSvc,
 		sessionId: "",
